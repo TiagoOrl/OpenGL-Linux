@@ -14,3 +14,6 @@
 ## build and run ##
     build with make
     run ./render
+
+
+Course Reference: https://www.youtube.com/watch?v=45MIykWJ-C4&t=2092s

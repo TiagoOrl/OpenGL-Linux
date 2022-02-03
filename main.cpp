@@ -17,24 +17,6 @@
 // download build and include glad.h and glad.c
 
 
-const char * vertexShaderSource = 
-"#version 330 core\n"
-"layout (location = 0) in vec3 aPos; \n"
-
-"void main()\n"
-"{\n"
-"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0); \n"
-"}\0";
-
-const char * fragmentShaderSource = 
-"#version 330 core \n"
-"out vec4 FragColor; \n"
-"void main()\n"
-"{\n"
-"   FragColor = vec4(0.2f, 0.7f, 0.02f, 1.0f); \n"
-"}\0";
-
-
 int main() {
     glfwInit();
 
@@ -80,15 +62,19 @@ int main() {
     // specify render viewport
     glViewport(0, 0, 600, 600);
 
+    // creates the shaders vertex and fragment
     Shader shaderProgram("shaders/default.vert", "shaders/default.frag");
 
+    // vertex array object init and binding
     VAO VAO1;
     VAO1.Bind();
 
+    // vertex buffer and elements buffer objects
     VBO VBO1(vertices, sizeof(vertices));
     EBO EBO1(indexes, sizeof(indexes));
     
 
+    // link the VBO to VAO
     VAO1.LinkVBO(VBO1, 0);
     VAO1.Unbind();
     VBO1.Unbind();
