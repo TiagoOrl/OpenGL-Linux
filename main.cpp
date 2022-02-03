@@ -3,10 +3,10 @@
 #include <iostream>
 #include <math.h>
 
-#include "shader.hpp"
-#include "VBO.hpp"
-#include "VAO.hpp"
-#include "EBO.hpp"
+#include "shader_classes/shader.hpp"
+#include "shader_classes/VBO.hpp"
+#include "shader_classes/VAO.hpp"
+#include "shader_classes/EBO.hpp"
 
 // install:
 // libgl1-mesa-dev
@@ -82,7 +82,7 @@ int main() {
 
     // background color
     glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
-    // clear the back buffer and assing the new color to it
+    // clear the back buffer and assign the new color to it
     glClear(GL_COLOR_BUFFER_BIT);
     // swap back buffer with the front buffer to render the color
     glfwSwapBuffers(window);
