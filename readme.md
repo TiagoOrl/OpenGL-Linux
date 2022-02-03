@@ -1,8 +1,8 @@
 
 
-## For Ubuntu based distros ##
+### For Ubuntu based distros ###
 
-### Install package libraries: ###
+## Install package libraries: ##
  libgl1-mesa-dev
  libglu1-mesa-dev
  libglfw3-dev
