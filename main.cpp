@@ -80,14 +80,6 @@ int main() {
     VBO1.Unbind();
     EBO1.Unbind();
 
-    // background color
-    glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
-    // clear the back buffer and assign the new color to it
-    glClear(GL_COLOR_BUFFER_BIT);
-    // swap back buffer with the front buffer to render the color
-    glfwSwapBuffers(window);
-
-
     while (!glfwWindowShouldClose(window)) 
     {
         glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
