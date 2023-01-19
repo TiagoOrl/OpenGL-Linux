@@ -7,6 +7,7 @@
 #include "shader_classes/VBO.hpp"
 #include "shader_classes/VAO.hpp"
 #include "shader_classes/EBO.hpp"
+#include "stb/stb_image.h"
 
 // install:
 // libgl1-mesa-dev
@@ -29,19 +30,16 @@ int main() {
 
     GLfloat vertices[] = 
     {
-        -0.5f, -0.5f *    float(sqrt(3)) / 3,     0.0f, 0.8f, 0.3f, 0.2f,
-         0.5f, -0.5f *    float(sqrt(3)) / 3,     0.0f, 0.8f, 0.3f, 0.2f,
-         0.0f,  0.5f *    float(sqrt(3)) * 2 / 3, 0.0f, 1.0f, 0.6f, 0.32f,
-        -0.5f / 2, 0.5f * float(sqrt(3)) / 6,     0.0f, 0.9f, 0.45f, 0.17f,
-         0.5f / 2, 0.5f * float(sqrt(3)) / 6,     0.0f, 0.9f, 0.45f, 0.17f,
-         0.0f, -0.5f *    float(sqrt(3)) / 3,     0.0f, 0.8f, 0.3f, 0.02f,
+        -0.5f, -0.5f, 0.0f,   1.0f, 0.0f, 0.0f,
+        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,
+         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 1.0f,
+         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f
     };
 
     GLuint indexes[] = 
     {
-        0,3,5, // lower left triangle
-        3,2,4, // lower right triangle
-        5,4,1  // upper triangle
+        0, 2, 1, //upper triangle
+        0, 3, 2  // lower triangle
     };
 
 
@@ -88,10 +86,10 @@ int main() {
         glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         shaderProgram.Activate();
-        glUniform1f(uniID, 1.9f);
+        glUniform1f(uniID, 0.5f);
         VAO1.Bind();
 
-        glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glfwSwapBuffers(window); 
 
         // handle GLFW events
