@@ -29,11 +29,12 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     GLfloat vertices[] = 
+    //    COORDINATES       /    COLOURS          / TEXTURE COORDS
     {
-        -0.5f, -0.5f, 0.0f,   1.0f, 0.0f, 0.0f,
-        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,
-         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 1.0f,
-         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f
+        -0.5f, -0.5f, 0.0f,   1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
+        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,  0.0f, 1.0f,
+         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 1.0f,  1.0f, 1.0f,
+         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,  1.0f, 0.0f   
     };
 
     GLuint indexes[] = 
@@ -72,14 +73,43 @@ int main() {
     EBO EBO1(indexes, sizeof(indexes));
     
 
-    // link the VBO to VAO
-    VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*) 0);
-    VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*) (3 * sizeof(float)));
+    // link the VBO attributes such as coordinates, colors and textures
+    VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*) 0);
+    VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*) (3 * sizeof(float)));
+    VAO1.LinkAttrib(VBO1, 2, 2, GL_FLOAT, 8 * sizeof(float), (void*) (6 * sizeof(float)));
     VAO1.Unbind();
     VBO1.Unbind();
     EBO1.Unbind();
 
     GLuint uniID = glGetUniformLocation(shaderProgram.ID, "scale");
+
+    // load up texture from img file
+    int imgWidth, imgHeight, channels;
+    stbi_set_flip_vertically_on_load(true);
+    unsigned char* imgData = stbi_load("textures/brick_wall.jpg", &imgWidth, &imgHeight, &channels, 0);
+
+    // get img into openGL
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // texture parameters for both axis
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imgWidth, imgHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, imgData);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    stbi_image_free(imgData);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    GLuint tex0Uni = glGetUniformLocation(shaderProgram.ID, "tex0");
+    shaderProgram.Activate();
+    glUniform1i(tex0Uni, 0);
 
     while (!glfwWindowShouldClose(window)) 
     {
@@ -87,6 +117,7 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT);
         shaderProgram.Activate();
         glUniform1f(uniID, 0.5f);
+        glBindTexture(GL_TEXTURE_2D, texture);
         VAO1.Bind();
 
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -99,6 +130,7 @@ int main() {
     VAO1.Delete();
     VBO1.Delete();
     EBO1.Delete();
+    glDeleteTextures(1, &texture);
     shaderProgram.Delete();
 
     glfwDestroyWindow(window);
