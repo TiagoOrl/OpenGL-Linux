@@ -3,10 +3,12 @@
 #include <iostream>
 #include <math.h>
 
-#include "shader_classes/shader.hpp"
-#include "shader_classes/VBO.hpp"
-#include "shader_classes/VAO.hpp"
-#include "shader_classes/EBO.hpp"
+#include "classes/shader.hpp"
+#include "classes/VBO.hpp"
+#include "classes/VAO.hpp"
+#include "classes/EBO.hpp"
+#include "classes/Texture.hpp"
+#include "stb/stb_image.h"
 
 // install:
 // libgl1-mesa-dev
@@ -28,20 +30,18 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     GLfloat vertices[] = 
+    //    COORDINATES       /    COLOURS          / TEXTURE COORDS
     {
-        -0.5f, -0.5f *    float(sqrt(3)) / 3,     0.0f, 0.8f, 0.3f, 0.2f,
-         0.5f, -0.5f *    float(sqrt(3)) / 3,     0.0f, 0.8f, 0.3f, 0.2f,
-         0.0f,  0.5f *    float(sqrt(3)) * 2 / 3, 0.0f, 1.0f, 0.6f, 0.32f,
-        -0.5f / 2, 0.5f * float(sqrt(3)) / 6,     0.0f, 0.9f, 0.45f, 0.17f,
-         0.5f / 2, 0.5f * float(sqrt(3)) / 6,     0.0f, 0.9f, 0.45f, 0.17f,
-         0.0f, -0.5f *    float(sqrt(3)) / 3,     0.0f, 0.8f, 0.3f, 0.02f,
+        -0.5f, -0.5f, 0.0f,   1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
+        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,  0.0f, 1.0f,
+         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 1.0f,  1.0f, 1.0f,
+         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,  1.0f, 0.0f   
     };
 
     GLuint indexes[] = 
     {
-        0,3,5, // lower left triangle
-        3,2,4, // lower right triangle
-        5,4,1  // upper triangle
+        0, 2, 1, //upper triangle
+        0, 3, 2  // lower triangle
     };
 
 
@@ -74,21 +74,30 @@ int main() {
     EBO EBO1(indexes, sizeof(indexes));
     
 
-    // link the VBO to VAO
-    VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*) 0);
-    VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*) (3 * sizeof(float)));
+    // link the VBO attributes such as coordinates, colors and textures
+    VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*) 0);
+    VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*) (3 * sizeof(float)));
+    VAO1.LinkAttrib(VBO1, 2, 2, GL_FLOAT, 8 * sizeof(float), (void*) (6 * sizeof(float)));
     VAO1.Unbind();
     VBO1.Unbind();
     EBO1.Unbind();
+
+    GLuint uniID = glGetUniformLocation(shaderProgram.ID, "scale");
+
+    Texture brickWall("textures/brick_wall.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
+    brickWall.texUnit(shaderProgram, "tex0", 0);
 
     while (!glfwWindowShouldClose(window)) 
     {
         glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         shaderProgram.Activate();
+        glUniform1f(uniID, 0.5f);
+        // Binds texture so that is appears in rendering
+		brickWall.Bind();
         VAO1.Bind();
 
-        glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glfwSwapBuffers(window); 
 
         // handle GLFW events
@@ -98,6 +107,7 @@ int main() {
     VAO1.Delete();
     VBO1.Delete();
     EBO1.Delete();
+    brickWall.Delete();
     shaderProgram.Delete();
 
     glfwDestroyWindow(window);
