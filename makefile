@@ -2,7 +2,7 @@ GPP=g++
 LIBS= -lglfw -lGLU -lGL -lXrandr -lX11 -lrt -ldl
 FLAGS= -pthread
 HEADERS=include
-INCLUDE_CLASSES=main.cpp stb.cpp shader_classes/shader.cpp shader_classes/VAO.cpp shader_classes/VBO.cpp shader_classes/EBO.cpp glad.c
+INCLUDE_CLASSES=main.cpp stb.cpp classes/shader.cpp classes/VAO.cpp classes/VBO.cpp classes/EBO.cpp classes/Texture.cpp glad.c
 
 
 render: $(INCLUDE_CLASSES)
