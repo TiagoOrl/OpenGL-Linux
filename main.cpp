@@ -34,19 +34,19 @@ int main() {
     // Tell GLFW we are using the CORE profile, means we only have Modern functions
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLfloat vertices[] = 
-    //    COORDINATES       /    COLOURS          / TEXTURE COORDS
-    {
-        -0.5f, -0.5f, 0.0f,   1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
-        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,  0.0f, 1.0f,
-         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 1.0f,  1.0f, 1.0f,
-         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,  1.0f, 0.0f   
+    GLfloat planeVerts[] =
+    { //     COORDINATES     /        COLORS        /    TexCoord    /       NORMALS     //
+        -1.0f, 0.0f,  1.0f,		0.0f, 0.0f, 0.0f,		0.0f, 0.0f,		0.0f, 1.0f, 0.0f,
+        -1.0f, 0.0f, -1.0f,		0.0f, 0.0f, 0.0f,		0.0f, 1.0f,		0.0f, 1.0f, 0.0f,
+        1.0f, 0.0f, -1.0f,		0.0f, 0.0f, 0.0f,		1.0f, 1.0f,		0.0f, 1.0f, 0.0f,
+        1.0f, 0.0f,  1.0f,		0.0f, 0.0f, 0.0f,		1.0f, 0.0f,		0.0f, 1.0f, 0.0f
     };
 
-    GLuint indexes[] = 
+    // Indices for vertices order
+    GLuint planeIndexes[] =
     {
-        0, 2, 1, //upper triangle
-        0, 3, 2  // lower triangle
+        0, 1, 2,
+        0, 2, 3
     };
 
     GLfloat pyramidVerts[] =
@@ -138,8 +138,8 @@ int main() {
     VAO1.Bind();
 
     // vertex buffer and elements buffer objects
-    VBO VBO1(pyramidVerts, sizeof(pyramidVerts));
-    EBO EBO1(pyramidIndexes, sizeof(pyramidIndexes));
+    VBO VBO1(planeVerts, sizeof(planeVerts));
+    EBO EBO1(planeIndexes, sizeof(planeIndexes));
     
 
     // link the VBO attributes such as coordinates, colors and textures
@@ -186,9 +186,12 @@ int main() {
     glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
     glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 
-
-    Texture brickWall("textures/brick_wall.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
-    brickWall.texUnit(shaderProgram, "tex0", 0);
+                                                                        // GL_RGBA for .png, RGB for .jpeg (on coloured images)
+    Texture plankTexture("textures/planks.png", GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE);
+                                                                                // single channel img = GL_RED
+    Texture plankSpecular("textures/planksSpec.png", GL_TEXTURE_2D, 1, GL_RED, GL_UNSIGNED_BYTE);
+    plankTexture.texUnit(shaderProgram, "tex0", 0);
+    plankSpecular.texUnit(shaderProgram, "tex1", 1);
 
     // enables depth buffer
     glEnable(GL_DEPTH_TEST);
@@ -208,13 +211,14 @@ int main() {
         camera.Matrix(shaderProgram, "camMatrix");
 
         // Binds texture so that is appears in rendering
-		brickWall.Bind();
+		plankTexture.Bind();
+        plankSpecular.Bind();
         VAO1.Bind();
 
         //draw img
         // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         
-        glDrawElements(GL_TRIANGLES, sizeof(pyramidIndexes)/sizeof(int32_t), GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, sizeof(planeIndexes)/sizeof(int32_t), GL_UNSIGNED_INT, 0);
 
         lightShader.Activate();
         camera.Matrix(lightShader, "camMatrix");
@@ -230,7 +234,7 @@ int main() {
     VAO1.Delete();
     VBO1.Delete();
     EBO1.Delete();
-    brickWall.Delete();
+    plankTexture.Delete();
     shaderProgram.Delete();
 
     glfwDestroyWindow(window);
